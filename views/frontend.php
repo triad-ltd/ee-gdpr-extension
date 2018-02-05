@@ -15,31 +15,36 @@
         if (parts.length == 2) return parts.pop().split(";").shift();
     }
 
-    if (getCookie('triad_gdpr_consent') == 'yes') {
+    <?php if (isset($_COOKIE['triad_gdpr_consent']) && $_COOKIE['triad_gdpr_consent'] == 'yes'): ?>
         <?php if (!empty($revoke_html)): ?>
-        document.write('<?=str_replace("'", "\'", $revoke_html)?>');
+        document.write('<?=$revoke_html?>');
         <?php else: ?>
         document.write('<div class="triad_gdpr" id="triad_gdpr_revoke"><p><button id="triad_gdpr_revoke_btn">Remove Cookies</button><?=$revoke_message?></p></div>');
         <?php endif;?>
-        document.getElementById('triad_gdpr_revoke_btn').onclick = function(e) {
-            deleteCookie('triad_gdpr_consent');
-            var cookies = document.cookie.split(";");
-            for (var i = 0; i < cookies.length; i++) {
-                deleteCookie(cookies[i].split("=")[0]);
+        document.addEventListener('click',function(event) {
+            if (event.target.id == 'triad_gdpr_revoke_btn') {
+                deleteCookie('triad_gdpr_consent');
+                var cookies = document.cookie.split(";");
+                for (var i = 0; i < cookies.length; i++) {
+                    deleteCookie(cookies[i].split("=")[0]);
+                }
+                location.reload();
             }
-            location.reload();
-        }
-    } else {
+        });
+    <?php else: ?>
         <?php if (!empty($consent_html)): ?>
-        document.write('<?=str_replace("'", "\'", $consent_html)?>');
+        document.write('<?=$consent_html?>');
         <?php else: ?>
         document.write('<div class="triad_gdpr" id="triad_gdpr_consent"><p><button id="triad_gdpr_consent_btn">Allow Cookies</button><?=$consent_message?></p></div>');
         <?php endif;?>
-        document.getElementById('triad_gdpr_consent_btn').onclick = function (e) {
-            setCookie('triad_gdpr_consent', 'yes', 365);
-            location.reload();
-        }
-    }
+        document.addEventListener('click',function(event) {
+            if (event.target.id == 'triad_gdpr_consent_btn') {
+                setCookie('triad_gdpr_consent', 'yes', 365);
+                location.reload();
+            }
+        });
+    <?php endif;?>
+
 </script>
 <?php if (isset($_COOKIE['triad_gdpr_consent']) && $_COOKIE['triad_gdpr_consent'] == 'yes'): ?>
 <?=$javascript?>

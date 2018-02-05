@@ -5,7 +5,7 @@ if (!defined('BASEPATH')) {
 
 class Triad_gdpr_ext
 {
-    public $version = '0.0.1';
+    public $version = '0.0.2';
     public $settings = array();
 
     public function __construct($settings = '')
@@ -53,7 +53,7 @@ class Triad_gdpr_ext
 }',
             ]),
             'priority' => 1,
-            'version' => '0.0.1',
+            'version' => '0.0.2',
             'enabled' => 'y',
         ]);
     }

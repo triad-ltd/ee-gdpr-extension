@@ -18,6 +18,12 @@ class Triad_gdpr
         $ext = new Triad_gdpr_ext();
         $ext->loadSettings();
 
+        $ext->settings['revoke_html'] = str_replace("\n", '', $ext->settings['revoke_html']);
+        $ext->settings['revoke_html'] = str_replace("'", "\'", $ext->settings['revoke_html']);
+
+        $ext->settings['consent_html'] = str_replace("\n", '', $ext->settings['consent_html']);
+        $ext->settings['consent_html'] = str_replace("'", "\'", $ext->settings['consent_html']);
+
         return ee('View')->make('triad_gdpr:frontend')->render($ext->settings);
     }
 }
