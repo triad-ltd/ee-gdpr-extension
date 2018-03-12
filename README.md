@@ -6,8 +6,10 @@ until consent has been granted.
 # License
 GNU General Public License v3.0, see the LICENSE file for full information.
 
-# Support
-Built and tested on EE 4.0.8. Please raise any issues via github
+# Support & Compatibility
+Built and tested on EE 4.0.8.
+Also tested on EE 3.5.15. 
+Please raise any issues via github
 [https://github.com/triad-ltd/ee-gdpr-extension](https://github.com/triad-ltd/ee-gdpr-extension)
 
 # Installation
