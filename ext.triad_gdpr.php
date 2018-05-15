@@ -5,7 +5,7 @@ if (!defined('BASEPATH')) {
 
 class Triad_gdpr_ext
 {
-    public $version = '0.0.2';
+    public $version = '0.0.3';
     public $settings = array();
 
     public function __construct($settings = '')
@@ -53,8 +53,20 @@ class Triad_gdpr_ext
 }',
             ]),
             'priority' => 1,
-            'version' => '0.0.2',
+            'version' => '0.0.3',
             'enabled' => 'y',
+        ]);
+        
+
+        ee()->db->insert('extensions', [
+            'class' => __CLASS__,
+            'enabled' => 'y',
+            'hook' => 'channel_entries_row',
+            'method' => 'checkEntryRow',
+            'priority' => 1,
+            'settings' => '',
+            'version' => '0.0.3',
+            'enabled' => 'n'
         ]);
     }
 
@@ -75,6 +87,34 @@ class Triad_gdpr_ext
         } else {
             return $data;
         }
+    }
+    
+    public function checkEntryRow($channel_object, $row)
+    {
+        // only need to do this if no consent has been granted.
+        if (isset($_COOKIE['triad_gdpr_consent']) && $_COOKIE['triad_gdpr_consent'] == 'yes') {
+            return $row;
+        }
+
+        // only fields with 'none' formatting will be html.
+        $target_fields = array_keys($row, 'none');
+
+        foreach ($target_fields as $_f) {
+            // check html fields only.
+            if (strpos($_f, 'field_ft_') !== false) {
+                $field = 'field_id_'.str_replace('field_ft_','',$_f);
+                $data = $row[$field];
+
+                // check for some buzzwords
+                if (strpos($data, '.wistia.') !== false ||
+                    stripos($data, '.youtube.') !== false ||
+                    stripos($data, '.vimeo.') !== false) {
+                    $row[$field] = '<p>You need to "Accept Cookies" before being able to view this content.</p>';
+                }
+            }
+        }
+
+        return $row;
     }
 
     public function loadSettings()
