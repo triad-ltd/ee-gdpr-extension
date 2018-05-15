@@ -34,3 +34,7 @@ WE HAVE CONSENT
 WE DON'T HAVE CONSENT
 {/if}
 ```
+
+# GDPR content filter
+
+vimeo / wistia / youtube can be detected in html fields and the field content swapped for a gdpr message.  This hook installs when you install, but is disabled. You may enable it in extensions table if required. Setting would be good, really.
