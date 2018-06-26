@@ -78,6 +78,12 @@ class Triad_gdpr_ext
 
     public function cookieConsent($data)
     {
+        // is it a control panel request? if so, force consent.
+        if (stripos($_SERVER['REQUEST_URI'], '/'.ee()->config->item('system_folder').'login') !== false) {
+            setcookie('triad_gdpr_consent', 'yes', time() + (86400 * 365));
+            return $data;
+        }
+
         if (!isset($_COOKIE['triad_gdpr_consent']) || $_COOKIE['triad_gdpr_consent'] != 'yes') {
             foreach ($_COOKIE as $key => $value) {
                 setcookie($key, $value, time() - 3600, '/');
