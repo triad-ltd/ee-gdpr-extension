@@ -5,7 +5,7 @@ if (!defined('BASEPATH')) {
 
 class Triad_gdpr_ext
 {
-    public $version = '0.0.3';
+    public $version = '0.1.0';
     public $settings = array();
 
     public function __construct($settings = '')
@@ -25,6 +25,7 @@ class Triad_gdpr_ext
                 'javascript' => '<!-- place any javascript snippets here, they will be inserted once concent has been acquired. -->',
                 'consent_html' => '',
                 'revoke_html' => '',
+                'essential_cookies' => 'n',
                 'style' => '
 .triad_gdpr {
     background: black;
@@ -53,20 +54,8 @@ class Triad_gdpr_ext
 }',
             ]),
             'priority' => 1,
-            'version' => '0.0.3',
+            'version' => '0.0.2',
             'enabled' => 'y',
-        ]);
-        
-
-        ee()->db->insert('extensions', [
-            'class' => __CLASS__,
-            'enabled' => 'y',
-            'hook' => 'channel_entries_row',
-            'method' => 'checkEntryRow',
-            'priority' => 1,
-            'settings' => '',
-            'version' => '0.0.3',
-            'enabled' => 'n'
         ]);
     }
 
@@ -78,50 +67,33 @@ class Triad_gdpr_ext
 
     public function cookieConsent($data)
     {
-        // is it a control panel request? if so, force consent.
-        if (stripos($_SERVER['REQUEST_URI'], '/'.ee()->config->item('system_folder').'login') !== false) {
-            setcookie('triad_gdpr_consent', 'yes', time() + (86400 * 365));
-            return $data;
-        }
-
+        $cookiePrefix  = ee()->config->item('cookie_prefix'); 
+        if(empty($cookiePrefix)){
+            $cookiePrefix = 'exp';
+        }       
+        $essentialCookies = [
+            'PHPSESSID',
+            'triad_gdpr_consent',
+            $cookiePrefix . '_csrf_token',
+            $cookiePrefix . '_last_activity',
+            $cookiePrefix . '_last_visit',
+            $cookiePrefix . '_tracker',
+            'triad_gdpr_consent'
+        ];  
+    
         if (!isset($_COOKIE['triad_gdpr_consent']) || $_COOKIE['triad_gdpr_consent'] != 'yes') {
             foreach ($_COOKIE as $key => $value) {
-                setcookie($key, $value, time() - 3600, '/');
+                if($this->settings['essential_cookies'] == 'y' && in_array($key, $essentialCookies)){
+                    continue;
+                }
+                setcookie($key, $value, time() - 3600, '/');               
             }
             ee()->extensions->end_script = true;
             return [];
-        } else {
-            return $data;
-        }
+        } 
+        return $data;   
     }
-    
-    public function checkEntryRow($channel_object, $row)
-    {
-        // only need to do this if no consent has been granted.
-        if (isset($_COOKIE['triad_gdpr_consent']) && $_COOKIE['triad_gdpr_consent'] == 'yes') {
-            return $row;
-        }
 
-        // only fields with 'none' formatting will be html.
-        $target_fields = array_keys($row, 'none');
-
-        foreach ($target_fields as $_f) {
-            // check html fields only.
-            if (strpos($_f, 'field_ft_') !== false) {
-                $field = 'field_id_'.str_replace('field_ft_','',$_f);
-                $data = $row[$field];
-
-                // check for some buzzwords
-                if (strpos($data, '.wistia.') !== false ||
-                    stripos($data, '.youtube.') !== false ||
-                    stripos($data, '.vimeo.') !== false) {
-                    $row[$field] = '<p>You need to "Accept Cookies" before being able to view this content.</p>';
-                }
-            }
-        }
-
-        return $row;
-    }
 
     public function loadSettings()
     {
@@ -144,6 +116,7 @@ class Triad_gdpr_ext
             'style' => ['t', ['rows' => '20'], ''],
             'consent_html' => ['t', ['rows' => '20'], ''],
             'revoke_html' => ['t', ['rows' => '20'], ''],
+            'essential_cookies' => array('r', array('y' => "Yes", 'n' => "No"), 'n')
         ];
         return $out;
     }

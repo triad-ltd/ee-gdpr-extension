@@ -6,10 +6,8 @@ until consent has been granted.
 # License
 GNU General Public License v3.0, see the LICENSE file for full information.
 
-# Support & Compatibility
-Built and tested on EE 4.0.8.
-Also tested on EE 3.5.15. 
-Please raise any issues via github
+# Support
+Built and tested on EE 4.0.8. Please raise any issues via github
 [https://github.com/triad-ltd/ee-gdpr-extension](https://github.com/triad-ltd/ee-gdpr-extension)
 
 # Installation
@@ -28,13 +26,9 @@ Keep in mind that without consent, any forms using POST will fail as CSRF cannot
 To that end the following tag is available in order that you can show/hide content based on the consent option of the visitor:
 
 ```
-{if "{exp:triad_gdpr:consent}" == "yes"}
+{if "{exp:triad_gdpr:consentEssential}" == "yes"}
 WE HAVE CONSENT
 {if:else}
 WE DON'T HAVE CONSENT
 {/if}
 ```
-
-# GDPR content filter
-
-vimeo / wistia / youtube can be detected in html fields and the field content swapped for a gdpr message.  This hook installs when you install, but is disabled. You may enable it in extensions table if required. Setting would be good, really.
