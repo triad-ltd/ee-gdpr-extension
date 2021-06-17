@@ -9,7 +9,7 @@ return [
     'author_url' => 'https://triad.uk.com',
     'name' => 'Triad GDPR Extension',
     'description' => 'GDPR cookie opt-in for ExpressionEngine',
-    'version' => '0.0.2',
+    'version' => '0.1.0',
     'namespace' => 'TriadLtd\GDPR',
     'settings_exist' => true,
 ];

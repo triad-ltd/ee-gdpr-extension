@@ -22,7 +22,7 @@ Place the following tag inside the &lt;head&gt; of your site template:
 {exp:triad_gdpr:script}
 ```
 
-Keep in mind that without consent, any forms using POST will fail as CSRF cannot function.
+Keep in mind that without consent, any forms using POST will fail as CSRF cannot function, unless the 'essiential' setting is turned on.
 To that end the following tag is available in order that you can show/hide content based on the consent option of the visitor:
 
 ```
