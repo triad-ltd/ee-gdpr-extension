@@ -6,7 +6,7 @@ if (!defined('BASEPATH')) {
 class Triad_gdpr_ext
 {
     public $version = '0.1.0';
-    public $settings = array();
+    public $settings = [];
 
     public function __construct($settings = '')
     {
@@ -22,7 +22,7 @@ class Triad_gdpr_ext
             'settings' => serialize([
                 'consent_message' => 'Do you consent to this website placing cookies on your computer?',
                 'revoke_message' => 'This website is now using cookies placed on your computer, click here to remove them.',
-                'javascript' => '<!-- place any javascript snippets here, they will be inserted once concent has been acquired. -->',
+                'javascript' => '<!-- place any javascript snippets here, they will be inserted once consent has been acquired. -->',
                 'consent_html' => '',
                 'revoke_html' => '',
                 'essential_cookies' => 'n',
@@ -67,31 +67,42 @@ class Triad_gdpr_ext
 
     public function cookieConsent($data)
     {
-        $cookiePrefix  = ee()->config->item('cookie_prefix'); 
+        $cookiePrefix  = ee()->config->item('cookie_prefix');
         if(empty($cookiePrefix)){
             $cookiePrefix = 'exp';
-        }       
+        }
         $essentialCookies = [
             'PHPSESSID',
             'triad_gdpr_consent',
+            $cookiePrefix . '_anon',
+            $cookiePrefix . '_cp_last_site_id',
             $cookiePrefix . '_csrf_token',
+            $cookiePrefix . '_flash',
             $cookiePrefix . '_last_activity',
             $cookiePrefix . '_last_visit',
+            $cookiePrefix . '_remember',
+            $cookiePrefix . '_sessionid',
             $cookiePrefix . '_tracker',
+            $cookiePrefix . '_visitor_consents',
             'triad_gdpr_consent'
-        ];  
-    
-        if (!isset($_COOKIE['triad_gdpr_consent']) || $_COOKIE['triad_gdpr_consent'] != 'yes') {
-            foreach ($_COOKIE as $key => $value) {
-                if($this->settings['essential_cookies'] == 'y' && in_array($key, $essentialCookies)){
-                    continue;
+        ];
+
+        if (REQ != 'CP') {
+            if (!isset($_COOKIE['triad_gdpr_consent']) || $_COOKIE['triad_gdpr_consent'] != 'yes') {
+                foreach ($_COOKIE as $key => $value) {
+                    if($this->settings['essential_cookies'] == 'y' && in_array($key, $essentialCookies)){
+                        continue;
+                    }
+                    setcookie($key, $value, time() - 3600, '/');
                 }
-                setcookie($key, $value, time() - 3600, '/');               
+                ee()->extensions->end_script = true;
+                return [];
             }
-            ee()->extensions->end_script = true;
-            return [];
-        } 
-        return $data;   
+        } else {
+            setcookie('triad_gdpr_consent', 'yes');
+        }
+
+        return $data;
     }
 
 
@@ -116,7 +127,7 @@ class Triad_gdpr_ext
             'style' => ['t', ['rows' => '20'], ''],
             'consent_html' => ['t', ['rows' => '20'], ''],
             'revoke_html' => ['t', ['rows' => '20'], ''],
-            'essential_cookies' => array('r', array('y' => "Yes", 'n' => "No"), 'n')
+            'essential_cookies' => ['r', ['y' => "Yes", 'n' => "No"], 'n']
         ];
         return $out;
     }

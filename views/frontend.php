@@ -6,17 +6,25 @@ if(empty($cookiePrefix)){
 }
 ?>
 <script>
+    var gdpr_consent = false;
+
     var essentialCookies = [
         'PHPSESSID',
         'triad_gdpr_consent',
+        '<?= $cookiePrefix?>_anon',
+        '<?= $cookiePrefix?>_cp_last_site_id',
         '<?= $cookiePrefix?>_csrf_token',
+        '<?= $cookiePrefix?>_flash',
         '<?= $cookiePrefix?>_last_activity',
         '<?= $cookiePrefix?>_last_visit',
+        '<?= $cookiePrefix?>_remember',
+        '<?= $cookiePrefix?>_sessionid',
         '<?= $cookiePrefix?>_tracker',
+        '<?= $cookiePrefix?>_visitor_consents',
         'triad_gdpr_consent'
     ];
 
-   function setCookie(cname, cvalue, exdays) {
+    function setCookie(cname, cvalue, exdays) {
         var d = new Date();
         d.setTime(d.getTime() + (exdays*24*60*60*1000));
         var expires = "expires="+ d.toUTCString();
@@ -30,14 +38,22 @@ if(empty($cookiePrefix)){
         var parts = value.split("; " + name + "=");
         if (parts.length == 2) return parts.pop().split(";").shift();
     }
+    if (getCookie('triad_gdpr_consent') == 'yes') {
+        gdpr_consent = true;
+    }
+
     // hide/show content based on cookie status
     window.addEventListener('DOMContentLoaded', (event) => {
-        if (getCookie('triad_gdpr_consent') == 'yes') {
-            document.getElementsByClassName('gdpr-show')[0].style.visibility = 'hidden';
-            document.getElementsByClassName('gdpr-hide')[0].style.visibility = 'visible';
+        if (gdpr_consent) {
+            var elements = document.getElementsByClassName("gdpr-consent-message");
+            while (elements.length > 0) {
+                elements[0].remove();
+            }
         } else {
-            document.getElementsByClassName('gdpr-hide')[0].style.visibility = 'hidden';
-            document.getElementsByClassName('gdpr-show')[0].style.visibility = 'visible';
+            var elements = document.getElementsByClassName("gdpr-consent-required");
+            while (elements.length > 0) {
+                elements[0].remove();
+            }
         }
     });
 
