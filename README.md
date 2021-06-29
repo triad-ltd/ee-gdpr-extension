@@ -62,6 +62,9 @@ Elements with the class `gdpr-consent-message` will be removed from the DOM if c
 A global javascript variable `gdpr_consent` is also available. Its value will be either `true` or `false`.
 
 ## Changelog
+0.2.1 - 2021-06-29
+ - frontend javascript to delete cookies when consent is revoked
+
 0.2 - 2021-06-17
  - to avoid 'form expired' errors, hitting the control panel sets the consent cookie, we presume the site owner grants consent
  - typo in language file
