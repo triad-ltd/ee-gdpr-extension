@@ -5,11 +5,11 @@ if (!defined('BASEPATH')) {
 
 class Triad_gdpr_ext
 {
-    public $version = '0.1.0';
     public $settings = [];
 
     public function __construct($settings = '')
     {
+        $this->loadSettings();
         $this->settings = $settings;
     }
 
@@ -54,15 +54,9 @@ class Triad_gdpr_ext
 }',
             ]),
             'priority' => 1,
-            'version' => '0.0.2',
+            'version' => $this->version,
             'enabled' => 'y',
         ]);
-    }
-
-    public function disable_extension()
-    {
-        ee()->db->where('class', __CLASS__);
-        ee()->db->delete('extensions');
     }
 
     public function cookieConsent($data)
@@ -87,34 +81,36 @@ class Triad_gdpr_ext
             'triad_gdpr_consent'
         ];
 
-        if (REQ != 'CP') {
-            if (!isset($_COOKIE['triad_gdpr_consent']) || $_COOKIE['triad_gdpr_consent'] != 'yes') {
+        if (!isset($_COOKIE['triad_gdpr_consent']) || $_COOKIE['triad_gdpr_consent'] != 'yes') {
+            if (REQ != 'CP') {
                 foreach ($_COOKIE as $key => $value) {
                     if($this->settings['essential_cookies'] == 'y' && in_array($key, $essentialCookies)){
                         continue;
                     }
                     setcookie($key, $value, time() - 3600, '/');
+                    header("HTTP/1.1 412");
                 }
                 ee()->extensions->end_script = true;
                 return [];
+            } else {
+                setcookie('triad_gdpr_consent', 'yes', 0, '/');
             }
-        } else {
-            setcookie('triad_gdpr_consent', 'yes');
         }
 
         return $data;
     }
 
-
-    public function loadSettings()
+    public function disable_extension()
     {
-        if (empty($this->settings)) {
-            $query = ee()->db->select('settings')
-                ->where('class', __CLASS__)
-                ->limit(1)
-                ->get('extensions');
+        ee()->db->where('class', __CLASS__);
+        ee()->db->delete('extensions');
+    }
 
-            $this->settings = unserialize($query->row('settings'));
+    private function loadSettings() {
+        $settings = include PATH_THIRD . 'echelon/addon.setup.php';
+
+        foreach ($settings as $_key => $_setting) {
+            $this->{$_key} = $_setting;
         }
     }
 
