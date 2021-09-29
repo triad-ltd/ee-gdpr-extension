@@ -88,7 +88,6 @@ class Triad_gdpr_ext
                         continue;
                     }
                     setcookie($key, $value, time() - 3600, '/');
-                    header("HTTP/1.1 412");
                 }
                 ee()->extensions->end_script = true;
                 return [];
