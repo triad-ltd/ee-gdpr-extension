@@ -9,7 +9,7 @@ class Triad_gdpr_ext
 
     public function __construct($settings = '')
     {
-        $this->loadSettings();
+        $this->loadSetup();
         $this->settings = $settings;
     }
 
