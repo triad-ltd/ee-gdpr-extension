@@ -29,7 +29,7 @@ class Triad_gdpr
         return 'no';
     }
 
-    public function loadSettings()
+    private function loadSettings()
     {
         $ext = new Triad_gdpr_ext();
         $ext->loadSettings();

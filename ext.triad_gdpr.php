@@ -105,11 +105,22 @@ class Triad_gdpr_ext
         ee()->db->delete('extensions');
     }
 
-    private function loadSettings() {
+    public function loadSetup() {
         $settings = include PATH_THIRD . 'echelon/addon.setup.php';
 
         foreach ($settings as $_key => $_setting) {
             $this->{$_key} = $_setting;
+        }
+    }
+
+    public function loadSettings() {
+        if (empty($this->settings)) {
+            $query = ee()->db->select('settings')
+                ->where('class', __CLASS__)
+                ->limit(1)
+                ->get('extensions');
+
+            $this->settings = unserialize($query->row('settings'));
         }
     }
 
