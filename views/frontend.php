@@ -43,11 +43,11 @@ if(empty($cookiePrefix)){
     }
 
     // hide/show content based on cookie status
-    window.addEventListener('DOMContentLoaded', (event) => {
+    window.addEventListener('DOMContentLoaded', function(event) {
         if (gdpr_consent) {
             var elements = document.getElementsByClassName("gdpr-consent-message");
             while (elements.length > 0) {
-                elements[0].remove();
+                elements[0].parentNode.removeChild(elements[0]);
             }
         } else {
             (function () {
@@ -69,7 +69,7 @@ if(empty($cookiePrefix)){
 
             var elements = document.getElementsByClassName("gdpr-consent-required");
             while (elements.length > 0) {
-                elements[0].remove();
+                elements[0].parentNode.removeChild(elements[0]);
             }
         }
     });
