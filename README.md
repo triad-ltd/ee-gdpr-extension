@@ -62,6 +62,9 @@ Elements with the class `gdpr-consent-message` will be removed from the DOM if c
 A global javascript variable `gdpr_consent` is also available. Its value will be either `true` or `false`.
 
 ## Changelog
+0.2.3 - 2021-11-10
+ - Swap use of remove() and arrow functions in javascript to IE compatible versions
+
 0.2.2 - 2021-09-29
  - CP cookie didn't have the path set so some CP requests would delete the session after login
 
