@@ -106,7 +106,7 @@ class Triad_gdpr_ext
     }
 
     public function loadSetup() {
-        $settings = include PATH_THIRD . 'echelon/addon.setup.php';
+        $settings = include PATH_THIRD . 'triad_gdpr/addon.setup.php';
 
         foreach ($settings as $_key => $_setting) {
             $this->{$_key} = $_setting;
