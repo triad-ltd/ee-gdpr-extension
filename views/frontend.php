@@ -103,7 +103,7 @@ if(empty($cookiePrefix)){
     <?php if (!empty($consent_html)): ?>
     document.write('<?=$consent_html?>');
     <?php else: ?>
-    document.write('<div class="triad_gdpr" id="triad_gdpr_consent"><p><button id="triad_gdpr_consent_btn">Allow Cookies</button><?=$consent_message?></p></div>');
+    document.write('<div class="triad_gdpr gdpr-consent-message" id="triad_gdpr_consent"><p><button id="triad_gdpr_consent_btn">Allow Cookies</button><?=$consent_message?></p></div>');
     <?php endif;?>
     document.addEventListener('click',function(event) {
         if (event.target.id == 'triad_gdpr_consent_btn') {
