@@ -28,10 +28,10 @@ if(empty($cookiePrefix)){
         var d = new Date();
         d.setTime(d.getTime() + (exdays*24*60*60*1000));
         var expires = "expires="+ d.toUTCString();
-        document.cookie = cname + "=" + cvalue + ";" + expires + "; domain=" + window.location.host + "; path=/;";
+        document.cookie = cname + "=" + cvalue + ";" + expires + "; domain=" + window.location.hostname + "; path=/;";
     }
     function deleteCookie(cname) {
-        document.cookie = cname + '=no; expires=Thu, 01 Jan 1970 00:00:01 GMT; domain=' + window.location.host + '; path=/;';
+        document.cookie = cname + '=no; expires=Thu, 01 Jan 1970 00:00:01 GMT; domain=' + window.location.hostname + '; path=/;';
     }
     function getCookie(name) {
         var value = "; " + document.cookie;

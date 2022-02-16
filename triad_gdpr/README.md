@@ -62,8 +62,11 @@ Elements with the class `gdpr-consent-message` will be removed from the DOM if c
 A global javascript variable `gdpr_consent` is also available. Its value will be either `true` or `false`.
 
 ## Changelog
+0.2.6 - 2022-02-16
+ - fixed setting and deleting cookies on urls ending with port numbers
+
 0.2.5 - 2021-12-06
-- default consent message changed to use client-side implementation
+ - default consent message changed to use client-side implementation
 
 0.2.4 - 2021-11-11
  - Corrected settings load path
