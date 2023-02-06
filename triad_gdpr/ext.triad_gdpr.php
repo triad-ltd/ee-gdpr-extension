@@ -62,9 +62,11 @@ class Triad_gdpr_ext
     public function cookieConsent($data)
     {
         $cookiePrefix  = ee()->config->item('cookie_prefix');
-        if(empty($cookiePrefix)){
+
+        if (empty($cookiePrefix)) {
             $cookiePrefix = 'exp';
         }
+
         $essentialCookies = [
             'PHPSESSID',
             'triad_gdpr_consent',
@@ -81,16 +83,26 @@ class Triad_gdpr_ext
             'triad_gdpr_consent'
         ];
 
+        // consent isn't granted
         if (!isset($_COOKIE['triad_gdpr_consent']) || $_COOKIE['triad_gdpr_consent'] != 'yes') {
+            // this isn't a control panel request
             if (REQ != 'CP') {
+                // loop through current cookies and remove
                 foreach ($_COOKIE as $key => $value) {
-                    if($this->settings['essential_cookies'] == 'y' && in_array($key, $essentialCookies)){
+                    // unless 'essential' option is ticked
+                    if ($this->settings['essential_cookies'] == 'y' && in_array($key, $essentialCookies)) {
                         continue;
                     }
                     setcookie($key, $value, time() - 3600, '/');
                 }
-                ee()->extensions->end_script = true;
-                return [];
+
+                // void the current cookie attempt unless 'essential' option is ticked
+                if ($this->settings['essential_cookies'] == 'n') {
+                    $data['value'] = '';
+                    $data['expire'] = 1;
+                }
+
+                return $data;
             } else {
                 setcookie('triad_gdpr_consent', 'yes', 0, '/');
             }

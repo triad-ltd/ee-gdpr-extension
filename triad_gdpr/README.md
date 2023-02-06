@@ -62,6 +62,9 @@ Elements with the class `gdpr-consent-message` will be removed from the DOM if c
 A global javascript variable `gdpr_consent` is also available. Its value will be either `true` or `false`.
 
 ## Changelog
+0.2.7 - 2023-02-06
+ - 'essential' toggle wasn't working, EE source code did not match the docs expectation!
+
 0.2.6 - 2022-02-16
  - fixed setting and deleting cookies on urls ending with port numbers
 
@@ -84,4 +87,3 @@ A global javascript variable `gdpr_consent` is also available. Its value will be
  - to avoid 'form expired' errors, hitting the control panel sets the consent cookie, we presume the site owner grants consent
  - typo in language file
  - client-side conditional content using JavaScript
- 
