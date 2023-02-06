@@ -63,7 +63,7 @@ A global javascript variable `gdpr_consent` is also available. Its value will be
 
 ## Changelog
 0.2.7 - 2023-02-06
- - 'essential' toggle wasn't working, EE source code did not match the docs expectation!
+ - 'essential' toggle wasn't working, EE source code did not match the docs expectation! plus javascript issues with this feature
 
 0.2.6 - 2022-02-16
  - fixed setting and deleting cookies on urls ending with port numbers
