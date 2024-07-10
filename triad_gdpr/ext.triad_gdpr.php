@@ -20,6 +20,7 @@ class Triad_gdpr_ext
             'method' => 'cookieConsent',
             'hook' => 'set_cookie_end',
             'settings' => serialize([
+                'gtm_measurement_id' => '',
                 'consent_message' => 'Do you consent to this website placing cookies on your computer?',
                 'revoke_message' => 'This website is now using cookies placed on your computer, click here to remove them.',
                 'javascript' => '<!-- place any javascript snippets here, they will be inserted once consent has been acquired. -->',
@@ -27,31 +28,36 @@ class Triad_gdpr_ext
                 'revoke_html' => '',
                 'essential_cookies' => 'n',
                 'style' => '
-.triad_gdpr {
-    background: black;
-    border: 1px solid white;
-    font-size: 10px;
-    padding: 8px;
-    position: fixed;
-    width: 100%;
-    z-index: 999;
-}
-.triad_gdpr button {
-    background: white;
-    border: none;
-    color: black;
-    float: right;
-    padding: 8px 12px;
-}
-.triad_gdpr p {
-    color: white;
-}
-#triad_gdpr_consent {
-    top: 0;
-}
-#triad_gdpr_revoke {
-    bottom: 0;
-}',
+                    .triad_gdpr {
+                        background: black;
+                        border: 1px solid white;
+                        font-size: 16px;
+                        padding: 30px;
+                        position: fixed;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: middle;
+                        width: calc(100% - 62px);
+                        z-index: 10000;
+                    }
+                    .triad_gdpr button {
+                        background: white;
+                        border: none;
+                        color: black;
+                        padding: 8px 12px;
+                        cursor: pointer;
+                    }
+                    .triad_gdpr p {
+                        color: white;
+                        margin: 0;
+                    }
+                    #triad_gdpr_consent {
+                        bottom: 0;
+                    }
+                    #triad_gdpr_revoke {
+                        bottom: 0;
+                    }
+                ',
             ]),
             'priority' => 1,
             'version' => $this->version,
@@ -139,6 +145,7 @@ class Triad_gdpr_ext
     public function settings()
     {
         $out = [
+            'gtm_measurement_id' => ['i', '', ''],
             'consent_message' => ['t', ['rows' => '20'], ''],
             'revoke_message' => ['t', ['rows' => '20'], ''],
             'javascript' => ['t', ['rows' => '20'], ''],
