@@ -28,12 +28,15 @@ class Triad_gdpr_ext
                 'revoke_html' => '',
                 'essential_cookies' => 'n',
                 'style' => '
+                    body {
+                        padding-bottom: 90px;
+                        position: relative;
+                    }
                     .triad_gdpr {
                         background: black;
                         border: 1px solid white;
                         font-size: 16px;
                         padding: 30px;
-                        position: fixed;
                         display: flex;
                         justify-content: space-between;
                         align-items: middle;
@@ -53,8 +56,10 @@ class Triad_gdpr_ext
                     }
                     #triad_gdpr_consent {
                         bottom: 0;
+                        position: fixed;
                     }
                     #triad_gdpr_revoke {
+                        position: absolute;
                         bottom: 0;
                     }
                 ',

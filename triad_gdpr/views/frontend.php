@@ -56,7 +56,7 @@ Make sure to add specific consents in the lists below if required based on GTM r
                     <?php if (!empty($revoke_html)): ?>
                         window.document.body.insertAdjacentHTML('beforeend', '<?=$revoke_html?>');
                     <?php else: ?>
-                        window.document.body.insertAdjacentHTML('beforeend', '<div class="triad_gdpr" id="triad_gdpr_revoke"><p><?=$revoke_message?></p><button id="triad_gdpr_revoke_btn">Remove Cookies</button></div>');
+                        window.document.body.insertAdjacentHTML('beforeend', '<div class="triad_gdpr gdpr-revoke-message" id="triad_gdpr_revoke"><p><?=$revoke_message?></p><button id="triad_gdpr_revoke_btn">Remove Cookies</button></div>');
                     <?php endif;?>
                 } else {
                     // All values are 'denied'
@@ -85,6 +85,10 @@ Make sure to add specific consents in the lists below if required based on GTM r
                         marketing: true,
                         analytics: true,
                     });
+                    if (banner) {
+                        banner.classList.remove('gdpr-consent-message');
+                        banner.classList.add('gdpr-revoke-message');
+                    }
                 });
             }
 
@@ -95,6 +99,10 @@ Make sure to add specific consents in the lists below if required based on GTM r
                         marketing: false,
                         analytics: false,
                     });
+                    if (banner) {
+                        banner.classList.remove('gdpr-revoke-message');
+                        banner.classList.add('gdpr-consent-message');
+                    }
                 });
             }
         });
