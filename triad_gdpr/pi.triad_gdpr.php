@@ -16,7 +16,6 @@ class Triad_gdpr
         if (isset($_COOKIE['triad_gdpr_consent']) && $_COOKIE['triad_gdpr_consent'] == 'yes') {
             return 'yes';
         }
-
         return 'no';
     }
 
@@ -53,13 +52,13 @@ class Triad_gdpr
         $this->settings['consent_html'] = str_replace("\n", '', $this->settings['consent_html']);
         $this->settings['consent_html'] = str_replace("'", "\'", $this->settings['consent_html']);
 
-        $this->settings['gtm_measurement_id'] = str_replace("'", "\'", $this->settings['gtm_measurement_id']);       
+        $this->settings['gtm_gtag_id'] = str_replace("'", "\'", $this->settings['gtm_gtag_id']);       
         return ee('View')->make('triad_gdpr:frontend')->render($this->settings);
     }
 
     public function noscript()
     {   
-        $this->settings['gtm_measurement_id'] = str_replace("'", "\'", $this->settings['gtm_measurement_id']);       
+        $this->settings['gtm_gtag_id'] = str_replace("'", "\'", $this->settings['gtm_gtag_id']);       
         return ee('View')->make('triad_gdpr:body-frontend')->render($this->settings);
     }
 }

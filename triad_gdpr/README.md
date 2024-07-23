@@ -10,7 +10,7 @@ This extension will implement a GDPR/PECR compliant cookie policy, preventing EE
 GNU General Public License v3.0, see the LICENSE file for full information.
 
 ## Support
-Built and tested on EE 4.0.8. Please raise any issues via github
+Built and tested on EE 7.2.17 Please raise any issues via github
 [https://github.com/triad-ltd/ee-gdpr-extension](https://github.com/triad-ltd/ee-gdpr-extension)
 
 ## Installation
@@ -61,7 +61,35 @@ Elements with the class `gdpr-consent-message` will be removed from the DOM if c
 
 A global javascript variable `gdpr_consent` is also available. Its value will be either `true` or `false`.
 
+## Consent Mode Version When GTM tag ID provided
+
+### Server-side implementation
+As Above, Without consent, any forms using POST will fail as CSRF cannot function.
+The following conditional is available also:
+```
+{if "{exp:triad_gdpr:consent}" == "yes"}
+WE HAVE CONSENT - WORKS THE SAME
+{if:else}
+WE DON'T HAVE CONSENT AND BANNER NOW APPEARS AT THE BOTTOM TO ACCEPT AFTER DIMISSED 
+    - Include buttons here if required to make it easier to accept cookies as the banner only appears once scrolled down to the bottom.
+    E.g. <p>Please accept cookies for the form to work. <a href="Javascript:;" id="triad_gdpr_consent_btn">Accept Cookies.</a></p>
+{/if}
+```
+
+SHOULD ONLY NEED THIS CONDITIONAL FOR MAJORITY OF USE UNTIL FUTHER VERSIONS.
+
+### Client-side implementation
+Javascript based, very useful for example when HTML is cached and static, but you still want to react to the consent status.
+
+Consent Mode is stored within LocalStorage inline with official documentation from Google - https://developers.google.com/tag-platform/security/guides/consent?consentmode=basic
+
+Banner will automatically check for whether user has accepted / dismissed / revoked the consent and consentMode is updated on click and pushed to dataLayer.
+
+
 ## Changelog
+0.3.0 - 2024-07-22
+ - New field 'GTM id (Gtag ID)' - When provided, will include code for Consent Mode compatibility, if not provided, fallback to existing GDPR code using cookies.
+
 0.2.7 - 2023-02-06
  - 'essential' toggle wasn't working, EE source code did not match the docs expectation! plus javascript issues with this feature
 

@@ -20,7 +20,7 @@ class Triad_gdpr_ext
             'method' => 'cookieConsent',
             'hook' => 'set_cookie_end',
             'settings' => serialize([
-                'gtm_measurement_id' => '',
+                'gtm_gtag_id' => '',
                 'consent_message' => 'Do you consent to this website placing cookies on your computer?',
                 'revoke_message' => 'This website is now using cookies placed on your computer, click here to remove them.',
                 'javascript' => '<!-- place any javascript snippets here, they will be inserted once consent has been acquired. -->',
@@ -150,7 +150,7 @@ class Triad_gdpr_ext
     public function settings()
     {
         $out = [
-            'gtm_measurement_id' => ['i', '', ''],
+            'gtm_gtag_id' => ['i', '', ''],
             'consent_message' => ['t', ['rows' => '20'], ''],
             'revoke_message' => ['t', ['rows' => '20'], ''],
             'javascript' => ['t', ['rows' => '20'], ''],
