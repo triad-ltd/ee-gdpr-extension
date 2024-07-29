@@ -70,6 +70,22 @@ Make sure to add specific consents in the lists below if required based on GTM r
         document.addEventListener('DOMContentLoaded', function() {
             const consentMode = localStorage.getItem('consentMode');
             const sessionConsent = sessionStorage.getItem('triad_gdpr_consent');
+            var gdpr_consent = false;
+            if (getCookie('triad_gdpr_consent') == 'yes') {
+                gdpr_consent = true;
+            }
+
+            if (gdpr_consent) {
+                var elements = document.getElementsByClassName("gdpr-consent-message");
+                while (elements.length > 0) {
+                    elements[0].parentNode.removeChild(elements[0]);
+                }
+            } else {
+                var elements = document.getElementsByClassName("gdpr-consent-required");
+                while (elements.length > 0) {
+                    elements[0].parentNode.removeChild(elements[0]);
+                }
+            }
 
             const insertConsentHtml = () => {
                 <?php if (!empty($consent_html)): ?>
