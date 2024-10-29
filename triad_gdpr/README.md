@@ -70,7 +70,7 @@ The following conditional is available also:
 {if "{exp:triad_gdpr:consent}" == "yes"}
 WE HAVE CONSENT - WORKS THE SAME
 {if:else}
-WE DON'T HAVE CONSENT AND BANNER NOW APPEARS AT THE BOTTOM TO ACCEPT AFTER DIMISSED 
+WE DON'T HAVE CONSENT AND BANNER NOW APPEARS AT THE BOTTOM TO ACCEPT AFTER DIMISSED
     - Include buttons here if required to make it easier to accept cookies as the banner only appears once scrolled down to the bottom.
     E.g. <p>Please accept cookies for the form to work. <a href="Javascript:;" id="triad_gdpr_consent_btn">Accept Cookies.</a></p>
 {/if}
@@ -87,6 +87,9 @@ Banner will automatically check for whether user has accepted / dismissed / revo
 
 
 ## Changelog
+0.4.0 - 2024-10-29
+ - Update syntax to suppress deprecation errors
+
 0.3.0 - 2024-07-22
  - New field 'GTM id (Gtag ID)' - When provided, will include code for Consent Mode compatibility, if not provided, fallback to existing GDPR code using cookies.
 
@@ -101,7 +104,7 @@ Banner will automatically check for whether user has accepted / dismissed / revo
 
 0.2.4 - 2021-11-11
  - Corrected settings load path
- 
+
 0.2.3 - 2021-11-10
  - Swap use of remove() and arrow functions in javascript to IE compatible versions
 

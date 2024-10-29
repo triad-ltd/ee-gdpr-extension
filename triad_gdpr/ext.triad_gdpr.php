@@ -6,6 +6,13 @@ if (!defined('BASEPATH')) {
 class Triad_gdpr_ext
 {
     public $settings = [];
+    public $author;
+    public $author_url;
+    public $name;
+    public $description;
+    public $version;
+    public $namespace;
+    public $settings_exist;
 
     public function __construct($settings = '')
     {
