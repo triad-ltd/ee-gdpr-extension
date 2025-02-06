@@ -1,187 +1,69 @@
 <?=!empty($style) ? "<style>$style</style>" : ''?>
 <?php
-$cookiePrefix  = ee()->config->item('cookie_prefix');
-if (empty($cookiePrefix)) {
-    $cookiePrefix = 'exp';
-}
+    $cookiePrefix  = ee()->config->item('cookie_prefix');
+    if (empty($cookiePrefix)) {
+        $cookiePrefix = 'exp';
+    }
 ?>
-
-<!-- if GTM value set then run code for  consent mode. 
-Make sure to add specific consents in the lists below if required based on GTM requirements-->
-<?php if (!empty($gtm_gtag_id)) { ?>
-    <!-- Google Tag Manager -->
-    <script defer>
-    
-        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-        })(window,document,'script','dataLayer','<?=htmlspecialchars($gtm_gtag_id, ENT_QUOTES)?>');
-        
-
-        function getCookie(name) {
-            var value = "; " + document.cookie;
-            var parts = value.split("; " + name + "=");
-            if (parts.length == 2) return parts.pop().split(";").shift();
-        }
-
-        const setCookie = (name, value, days) => {
-            let expires = "";
-            if (days) {
-                const date = new Date();
-                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-                expires = "; expires=" + date.toUTCString();
-            }
-            document.cookie = name + "=" + (value || "") + expires + "; path=/";
-        };
-
-        const deleteCookie = (name) => {
-            document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/;';
-        };
-
-        window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); }
-        if(localStorage.getItem('consentMode') === null) {
-            gtag('consent', 'default', {
-                'ad_user_data': 'denied',
-                'ad_personalization': 'denied',
-                'ad_storage': 'denied',
-                'analytics_storage': 'denied',
-                'wait_for_update': 500,
-            });
-        } else {
-            gtag('consent', 'default', JSON.parse(localStorage.getItem('consentMode')));
-        }	
-        
-        function setConsent(consent){
-            const consentMode = {
-                'ad_user_data': consent.necessary ? 'granted' : 'denied',
-                'ad_personalization': consent.necessary ? 'granted' : 'denied',
-                'ad_storage': consent.marketing ? 'granted' : 'denied',
-                'analytics_storage': consent.analytics ? 'granted' : 'denied',
-            }
-            gtag('consent', 'update', consentMode);
-            localStorage.setItem('consentMode', JSON.stringify(consentMode));
-        }
-
-        function removeDismissal() {
-            sessionStorage.removeItem('triad_gdpr_consent');
-        }
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            const consentMode = localStorage.getItem('consentMode');
-            const sessionConsent = sessionStorage.getItem('triad_gdpr_consent');
-            var gdpr_consent = false;
-            if (getCookie('triad_gdpr_consent') == 'yes') {
-                gdpr_consent = true;
-            }
-
-            if (gdpr_consent) {
-                var elements = document.getElementsByClassName("gdpr-consent-message");
-                while (elements.length > 0) {
-                    elements[0].parentNode.removeChild(elements[0]);
-                }
-            } else {
-                var elements = document.getElementsByClassName("gdpr-consent-required");
-                while (elements.length > 0) {
-                    elements[0].parentNode.removeChild(elements[0]);
-                }
-            }
-
-            const insertConsentHtml = () => {
-                <?php if (!empty($consent_html)): ?>
-                    window.document.body.insertAdjacentHTML('beforeend', '<?=$consent_html?>');
-                <?php else: ?>
-                    window.document.body.insertAdjacentHTML('beforeend', '<div class="triad_gdpr gdpr-consent-message" id="triad_gdpr_consent"><p><?=$consent_message?></p><div><button id="triad_gdpr_dismissed_btn" class="uk-margin-right">Decline</button><button id="triad_gdpr_consent_btn">Allow Cookies</button></div></div>');
-                <?php endif;?>
-            };
-
-            const insertRevokeHtml = () => {
-                <?php if (!empty($revoke_html)): ?>
-                    window.document.body.insertAdjacentHTML('beforeend', '<?=$revoke_html?>');
-                <?php else: ?>
-                    window.document.body.insertAdjacentHTML('beforeend', '<div class="triad_gdpr gdpr-revoke-message" id="triad_gdpr_revoke"><p><?=$revoke_message?></p><button id="triad_gdpr_revoke_btn">Remove Cookies</button></div>');
-                <?php endif;?>
-            };
-
-            const insertConsentDismissedHtml = () => {
-                <?php if (!empty($consent_html)): ?>
-                    window.document.body.insertAdjacentHTML('beforeend', '<?=$consent_message?>');
-                <?php else: ?>
-                    window.document.body.insertAdjacentHTML('beforeend', '<div class="triad_gdpr gdpr-revoke-message" id="triad_gdpr_revoke"><p><?=$consent_message?></p><button id="triad_gdpr_consent_btn">Accept Cookies</button></div>');
-                <?php endif;?>
-            };
-
-            if (sessionConsent && getCookie('triad_gdpr_consent') !== 'yes') {
-                insertConsentDismissedHtml();
-            } else if (consentMode) {
-                const consentData = JSON.parse(consentMode);
-                const values = Object.values(consentData);
-                const allDenied = values.every(value => value === 'denied');
-
-                if (!allDenied) {
-                    insertRevokeHtml();
-                } else {
-                    insertConsentHtml();
-                }
-            } else {
-                insertConsentHtml();
-            }
-
-            const consents = JSON.parse(consentMode);
-            if (consents) {
-                const anyDenied = Object.values(consents).some(status => status === 'denied');
-            }
-            const banner = document.querySelector(".triad_gdpr");
-            const buttons = {
-                granted: document.getElementById('triad_gdpr_consent_btn'),
-                dismissed: document.getElementById('triad_gdpr_dismissed_btn'),
-                revoked: document.getElementById('triad_gdpr_revoke_btn')
-            };
-
-            const updateBannerClass = (shouldRevoke) => {
-                banner.classList.toggle('gdpr-consent-message', !shouldRevoke);
-                banner.classList.toggle('gdpr-revoke-message', shouldRevoke);
-            };
-
-            const handleConsent = (consentValues, shouldSetCookie = false, shouldDeleteCookie = false, shouldDismissCookie = false) => {
-                setConsent(consentValues);
-                updateBannerClass(Object.values(consentValues).some(val => !val));
-                
-                if (shouldSetCookie && getCookie('triad_gdpr_consent') !== 'yes') {
-                    removeDismissal();
-                    deleteCookie('triad_gdpr_consent');
-                    setCookie('triad_gdpr_consent', 'yes', 365);
-                }
-
-                if (shouldDismissCookie) {
-                    sessionStorage.setItem('triad_gdpr_consent', JSON.stringify('dimissed'));
-                }
-                
-                if (shouldDeleteCookie) {
-                    deleteCookie('triad_gdpr_consent');
-                }
-                
-                location.reload();
-            };
-
-            const buttonActions = {
-                granted: () => handleConsent({ necessary: true, marketing: true, analytics: true }, true),
-                dismissed: () => handleConsent({ necessary: false, marketing: false, analytics: false }, false, false, true),
-                revoked: () => handleConsent({ necessary: false, marketing: false, analytics: false }, false, true)
-            };
-
-            Object.entries(buttons).forEach(([key, button]) => {
-                if (button) {
-                    button.addEventListener("click", buttonActions[key]);
-                }
-            });
-        });
-        
-    </script>
-    <!-- End Google Tag Manager -->
-<?php } else { ?>
 <script>
-    var gdpr_consent = false;
+    // Backwards Compatability functions
+    const deleteAllCookies = () => {
+        const cookies = document.cookie.split(";");
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i];
+            const eqPos = cookie.indexOf("=");
+            const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+
+            // Delete the cookie on all possible paths and domains
+            document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+            document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + location.hostname;
+            document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=." + location.hostname;
+
+            // Attempt to delete third-party cookies
+            const domainParts = location.hostname.split('.');
+            for (let j = domainParts.length - 1; j >= 0; j--) {
+                const domain = domainParts.slice(j).join('.');
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=." + domain;
+            }
+
+            // Attempt to delete cookies on common third-party domains
+            const commonThirdPartyDomains = ['bing.com', 'google.com', 'facebook.com', 'youtube.com', 'twitter.com', 'linkedin.com'];
+            for (const domain of commonThirdPartyDomains) {
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=." + domain;
+            }
+        }
+    };
+
+    const deleteCookie = (name) => {
+        document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/;';
+    };
+
+    const deleteNonEssentialCookies = () => {
+        var optionalCookies = document.cookie.split(';');
+        for (var i = 0; i < optionalCookies.length; i++) {
+            var ck = optionalCookies[i].split('=')[0];
+            if (essentialCookies.indexOf(ck.trim()) == -1) {
+                deleteCookie(ck);
+            }
+        }
+    };
+
+    function getCookie(name) {
+        var value = "; " + document.cookie;
+        var parts = value.split("; " + name + "=");
+        if (parts.length == 2) return parts.pop().split(";").shift();
+    }
+
+    const setCookie = (name, value, days) => {
+        let expires = "";
+        if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "") + expires + "; path=/";
+    };
 
     var essentialCookies = [
         'PHPSESSID',
@@ -198,58 +80,268 @@ Make sure to add specific consents in the lists below if required based on GTM r
         '<?= $cookiePrefix ?>_visitor_consents',
         'triad_gdpr_consent'
     ];
+</script>
+<?php if (!empty($gtm_key)) { ?>
+<script>
+    // Initialize dataLayer and gtag only if GTM code exists
+    window.dataLayer = window.dataLayer || []; 
+    function gtag() { dataLayer.push(arguments); }
 
-    function setCookie(cname, cvalue, exdays) {
-        var d = new Date();
-        d.setTime(d.getTime() + (exdays*24*60*60*1000));
-        var expires = "expires="+ d.toUTCString();
-        document.cookie = cname + "=" + cvalue + ";" + expires + "; domain=" + window.location.host + "; path=/;";
-    }
-    function deleteCookie(cname) {
-        document.cookie = cname + '=no; expires=Thu, 01 Jan 1970 00:00:01 GMT; domain=' + window.location.host + '; path=/;';
-    }
-    function getCookie(name) {
-        var value = "; " + document.cookie;
-        var parts = value.split("; " + name + "=");
-        if (parts.length == 2) return parts.pop().split(";").shift();
-    }
-    if (getCookie('triad_gdpr_consent') == 'yes') {
-        gdpr_consent = true;
+    // Initialize consent mode, using previous choices
+    const savedConsentMode = localStorage.getItem('consentMode');
+    const defaultConsentMode = savedConsentMode ? JSON.parse(savedConsentMode) : {
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied'
+    };
+
+    gtag('consent', 'default', defaultConsentMode);
+
+    // Load GTM
+    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','<?=htmlspecialchars($gtm_key, ENT_QUOTES)?>');
+
+    const necessaryCookiesAlwaysAllowed = <?=$necessary_cookies == 'y' ? 'true' : 'false'?>;
+    const types = ['analytics', 'performance', 'necessary'];
+    const CONSENT_STORAGE_KEY = 'triad_gdpr_consent';
+    const DISMISS_STORAGE_KEY = 'triad_gdpr_dismiss';
+
+    // Storage helper functions
+    function setStorageItem(key, value, useSession = false) {
+        const storage = useSession ? sessionStorage : localStorage;
+        storage.setItem(key, JSON.stringify(value));
     }
 
-    // hide/show content based on cookie status
-    window.addEventListener('DOMContentLoaded', function(event) {
-        if (gdpr_consent) {
-            var elements = document.getElementsByClassName("gdpr-consent-message");
-            while (elements.length > 0) {
-                elements[0].parentNode.removeChild(elements[0]);
-            }
+    function getStorageItem(key, useSession = false) {
+        const storage = useSession ? sessionStorage : localStorage;
+        try {
+            return JSON.parse(storage.getItem(key));
+        } catch {
+            return null;
+        }
+    }
+
+    function getConsentStatus(type) {
+        const consents = getStorageItem(CONSENT_STORAGE_KEY) || {};
+        return consents[type] === true;
+    }
+
+    function setConsentStatus(type, value) {
+        const consents = getStorageItem(CONSENT_STORAGE_KEY) || {};
+        if (type === 'necessary' && necessaryCookiesAlwaysAllowed) {
+            consents[type] = true;
         } else {
-            <?php if ($essential_cookies == 'y'): ?>
-                var optionalCookies = document.cookie.split(';');
-                for (var i = 0; i < optionalCookies.length; i++) {
-                    var ck = optionalCookies[i].split('=')[0];
-                    if (essentialCookies.indexOf(ck.trim()) == -1) {
-                        console.log(ck);
-                        deleteCookie(ck);
-                    }
-                }
-            <?php else: ?>
-                var cookies = document.cookie.split(";");
-                for (var i = 0; i < cookies.length; i++) {
-                    deleteCookie(cookies[i].split("=")[0]);
-                }
-            <?php endif;?>
+            consents[type] = value;
+        }
+        setStorageItem(CONSENT_STORAGE_KEY, consents);
+        updateConsentMode();
+    }
 
-            var elements = document.getElementsByClassName("gdpr-consent-required");
-            while (elements.length > 0) {
-                elements[0].parentNode.removeChild(elements[0]);
+    // Update Consents
+    function updateConsentMode() {
+        const storedConsents = getStorageItem(CONSENT_STORAGE_KEY) || {};
+        const consentMode = {
+            'ad_user_data': storedConsents['analytics'] ? 'granted' : 'denied',
+            'ad_personalization': storedConsents['analytics'] ? 'granted' : 'denied',
+            'ad_storage': storedConsents['analytics'] ? 'granted' : 'denied',
+            'analytics_storage': storedConsents['analytics'] ? 'granted' : 'denied'
+        };
+
+        gtag('consent', 'update', consentMode);
+        localStorage.setItem('consentMode', JSON.stringify(consentMode));
+
+        // Update UI toggle states
+        document.querySelectorAll('[data-triad-gdpr-cookie]').forEach(toggle => {
+            const type = toggle.dataset.triadGdprCookie.replace('triad_gdpr_consent_', '');
+            toggle.checked = storedConsents[type] === true;
+
+            if (type === 'necessary' && necessaryCookiesAlwaysAllowed) {
+                toggle.disabled = true;
+                toggle.checked = true;
+            }
+        });
+    }
+
+    function acceptConsent() {
+        setConsentStatus('necessary', true);
+        setConsentStatus('analytics', true);
+        dismissConsent();
+    }
+
+    function revokeConsent() {
+        setConsentStatus('necessary', false);
+        setConsentStatus('analytics', false);
+        deleteAllCookies();
+        dismissConsent();
+    }
+
+    function savePreferences() {
+        const consentTypes = ['analytics', 'performance', 'necessary'];
+        const consents = {};
+
+        consentTypes.forEach(type => {
+            const toggle = document.querySelector(`[data-triad-gdpr-cookie="triad_gdpr_consent_${type}"]`);
+            if (toggle) {
+                consents[type] = toggle.checked;
+            }
+        });
+
+        // If necessary cookies are disabled, delete all cookies
+        if (!consents['necessary']) {
+            deleteAllCookies();
+        } else if (necessaryCookiesAlwaysAllowed) {
+            // If only non-essential cookies are disabled
+            deleteNonEssentialCookies();
+        }
+
+        setStorageItem(CONSENT_STORAGE_KEY, consents);
+        updateConsentMode(); // Ensures UI updates after saving
+        dismissConsent();
+    }
+
+    function removeConsentDismissal() {        
+        // Re-insert consent HTML if not present
+        if (!document.getElementById('cookies-popup')) {
+            const consentHtml = `<?=str_replace(["\n", "\r"], '', addslashes($consent_html))?>`;
+            document.body.insertAdjacentHTML('beforeend', consentHtml);
+            
+            // Reinitialize manage cookies functionality
+            const manageButton = document.getElementById('manage-cookies-button');
+            const initialSettings = document.getElementById('initial-cookies-settings');
+            const manageSettings = document.getElementById('manage-cookies-settings');
+            const backButton = document.getElementById('js-triad_gdpr_back');
+            
+            if (manageButton) {
+                manageButton.addEventListener('click', () => {
+                    initialSettings.style.display = 'none';
+                    manageSettings.style.display = 'block';
+                    backButton.parentElement.style.display = 'block';
+                });
+            }
+
+            if (backButton) {
+                backButton.addEventListener('click', () => {
+                    initialSettings.style.display = 'block';
+                    manageSettings.style.display = 'none';
+                    backButton.parentElement.style.display = 'none';
+                });
             }
         }
+    }
+
+    function dismissConsent() {
+        setStorageItem(DISMISS_STORAGE_KEY, true);
+        let consent = localStorage.getItem('triad_gdpr_consent');
+        if (consent) {
+            consent = JSON.parse(consent);
+            if(consent.necessary){
+                setCookie('triad_gdpr_consent_necessary', 'yes', 365);
+            }
+        }
+        window.location.reload();
+    }
+
+    function updateConsentToggles() {
+        const storedConsents = getStorageItem(CONSENT_STORAGE_KEY) || {}; 
+        document.querySelectorAll('[data-triad-gdpr-cookie]').forEach(toggle => {
+            const type = toggle.dataset.triadGdprCookie.replace('triad_gdpr_consent_', '');
+            const consentGiven = storedConsents[type] === true;
+
+            toggle.checked = consentGiven;
+
+            if (type === 'necessary' && necessaryCookiesAlwaysAllowed) {
+                toggle.disabled = true;
+                toggle.checked = true;
+            }
+
+            if (toggle instanceof HTMLInputElement && toggle.type === 'checkbox') {
+                try {
+                    // Ensure straight quotes are used for 'change'
+                    const event = new Event('change');
+                    toggle.dispatchEvent(event);
+                } catch (error) {
+                    console.warn('Failed to dispatch change event:', error);
+                }
+            }
+        });
+    }
+
+    function ensureElementsExist(callback) {
+        requestAnimationFrame(() => {
+            if (document.querySelector('[data-triad-gdpr-cookie]')) {
+                callback();
+            } else {
+                ensureElementsExist(callback);
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        const storedConsents = getStorageItem(CONSENT_STORAGE_KEY) || {};
+        const necessaryEnabled = storedConsents['necessary'] === true;
+        document.querySelectorAll('.js-triad-gdpr-necessary-required').forEach(el => {
+            if (!necessaryEnabled) {
+                el.remove();
+            }
+        });
+        document.querySelectorAll('.js-triad-gdpr-not-necessary-only').forEach(el => {
+            if (necessaryEnabled) {
+                el.remove();
+            }
+        });
+        
+        // Always enforce necessary cookies if required
+        if (necessaryCookiesAlwaysAllowed) {
+            setConsentStatus('necessary', true);
+        }
+
+        const hasDismissed = getStorageItem(DISMISS_STORAGE_KEY);
+        if (!hasDismissed) {
+            const consentHtml = `<?=str_replace(["\n", "\r"], '', addslashes($consent_html))?>`; 
+            document.body.insertAdjacentHTML('beforeend', consentHtml);
+
+            const manageButton = document.getElementById('manage-cookies-button');
+            const initialSettings = document.getElementById('initial-cookies-settings');
+            const manageSettings = document.getElementById('manage-cookies-settings');
+            const backButton = document.getElementById('js-triad_gdpr_back');
+
+            if (manageButton) {
+                manageButton.addEventListener('click', () => {
+                    initialSettings.style.display = 'none';
+                    manageSettings.style.display = 'block';
+                    backButton.parentElement.style.display = 'block';
+                });
+            }
+
+            if (backButton) {
+                backButton.addEventListener('click', () => {
+                    initialSettings.style.display = 'block';
+                    manageSettings.style.display = 'none';
+                    backButton.parentElement.style.display = 'none';
+                });
+            }
+
+                updateConsentMode();
+        }
+
+        ensureElementsExist(() => {
+            updateConsentToggles();
+        });
+    });
+</script>
+<?php } else { ?>
+<script>
+    // hide/show content based on cookie status
+    window.addEventListener('DOMContentLoaded', function(event) {
         <?php if (!empty($revoke_html)): ?>
         window.document.body.insertAdjacentHTML('beforeend', '<?=$revoke_html?>');
         <?php else: ?>
-        window.document.body.insertAdjacentHTML('beforeend', '<div class="triad_gdpr" id="triad_gdpr_revoke"><p><button id="triad_gdpr_revoke_btn">Remove Cookies</button><?=$revoke_message?></p></div>');
+        window.document.body.insertAdjacentHTML('beforeend', '<div class="triad_gdpr gdpr-consent-required" id="triad_gdpr_revoke"><p><button id="triad_gdpr_revoke_btn">Remove Cookies</button><?=$revoke_message?></p></div>');
         <?php endif;?>
         <?php if (!empty($consent_html)): ?>
         window.document.body.insertAdjacentHTML('beforeend', '<?=$consent_html?>');
@@ -263,18 +355,9 @@ Make sure to add specific consents in the lists below if required based on GTM r
             deleteCookie('triad_gdpr_consent');
 
             <?php if ($essential_cookies == 'y'): ?>
-                var optionalCookies = document.cookie.split(';');
-                for (var i = 0; i < optionalCookies.length; i++) {
-                    var ck = optionalCookies[i].split('=')[0];
-                    if (essentialCookies.indexOf(ck.trim()) == -1) {
-                    deleteCookie(ck);
-                    }
-                }
+                deleteNonEssentialCookies();
             <?php else: ?>
-                var cookies = document.cookie.split(";");
-                for (var i = 0; i < cookies.length; i++) {
-                    deleteCookie(cookies[i].split("=")[0]);
-                }
+                deleteAllCookies();
             <?php endif;?>
 
             location.reload();
@@ -293,4 +376,3 @@ Make sure to add specific consents in the lists below if required based on GTM r
     });
 </script>
 <?php } ?>
-<?= $javascript ?>

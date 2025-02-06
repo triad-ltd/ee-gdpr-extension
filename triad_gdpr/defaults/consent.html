@@ -1,0 +1,135 @@
+<!-- Classic Setup -->
+<div id="manage-cookies" class="js-triad-gdpr-hide-dismiss">
+    <div class="header">
+        {!-- <button type="button" class="close" onclick="dismissConsent();">X</button> --}
+        <h3>Cookie Consent</h3>
+    </div>
+    <div class="toggles">
+        <div>
+            <label class="switch">
+                <input type="checkbox" data-triad-gdpr-cookie="triad_gdpr_consent_necessary">
+                <span class="slider round"></span>
+            </label>
+            <h4>Necessary cookies</h4>
+        </div>
+        <hr>
+        <div>
+            <label class="switch">
+                <input type="checkbox" data-triad-gdpr-cookie="triad_gdpr_consent_analytics">
+                <span class="slider round"></span>
+            </label>
+            <h4>Analytics cookies</h4>
+        </div>
+        <hr>
+        <div>
+            <label class="switch">
+                <input type="checkbox" data-triad-gdpr-cookie="triad_gdpr_consent_performance">
+                <span class="slider round"></span>
+            </label>
+            <h4>Performance cookies</h4>
+        </div>
+    </div>
+    <div class="buttons">
+        <button type="button" onclick="revokeConsent();">Reject cookies</button>
+        <button type="button" onclick="acceptConsent();">Accept cookies</button>
+    </div>
+</div>
+
+<!-- More Bespoke option -->
+
+<div class="uk-container uk-container-cookies">
+    <div id="cookies-popup"
+        class="uk-card uk-card-default uk-card-body uk-width-large uk-overflow-auto uk-position-fixed breadcrumbs js-triad-gdpr-hide-dismiss">
+        <div class="uk-flex uk-flex-right uk-width-1-1 uk-margin-bottom">
+            <div style="visibility: hidden; position: absolute;">
+                <button id="js-triad_gdpr_dismiss" onclick="dismissConsent();" class="uk-box-shadow-medium" uk-close></button>
+            </div>
+            <div style="display:none;">
+                <button id="js-triad_gdpr_back" class="uk-box-shadow-medium uk-icon uk-icon-pad"
+                    uk-icon="icon: chevron-left"></button>
+            </div>
+        </div>
+        <div id="initial-cookies-settings">
+            <h2 class="uk-margin-remove-top uk-margin-small-bottom">Cookie consent</h2>
+            <p class="uk-margin-remove-top">
+                We use necessary cookies to make our site work.
+                We'd also like to set analytics cookies that
+                help us make improvements by measuring how you
+                use the site, which are collected in a way that
+                means you cannot be identified.
+            </p>
+            <p>
+                For more detailed information about the cookies
+                we use, see our <a href="/cookie-policy">Cookies page.</a>
+            </p>
+            <p class="uk-margin-remove-bottom">
+                Our <a href="/privacy-policy">privacy policy</a>
+                informs you about how we look after your personal
+                data when you visit our website and explains your
+                privacy rights and how the law protects you.
+            </p>
+            <div class="uk-grid-small uk-child-width-1-3 uk-margin-medium-top" uk-grid>
+                <div>
+                    <button type="button" class="uk-button" onclick="revokeConsent();">Reject cookies</button>
+                </div>
+                <div>
+                    <button id="manage-cookies-button" type="button" class="uk-button">Manage cookies</button>
+                </div>
+                <div>
+                    <button type="button" class="uk-button" onclick="acceptConsent();">Accept cookies</button>
+                </div>
+            </div>
+        </div>
+        <div id="manage-cookies-settings" style="display: none;">
+            <h2 class="uk-margin-remove-top uk-margin-small-bottom">Manage cookies</h2>
+            <p class="uk-margin-remove-top">
+                Cookies are small text files that are placed on
+                your device by websites to collect information
+                about how you browse the site. They do not compromise
+                your privacy or security. For more detailed
+                information about the cookies we use, see our
+                <a href="/cookie-policy">Cookies policy.</a>
+            </p>
+            <div class="uk-grid-row-small uk-grid-column-medium uk-margin toggles-grid" uk-grid>
+                <div class="uk-width-1-4">
+                    <label class="switch">
+                        <input type="checkbox" data-triad-gdpr-cookie="triad_gdpr_consent_necessary">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="uk-width-3-4">
+                    <h3 class="uk-margin-remove-vertical">Necessary cookies</h3>
+                </div>
+                <div class="uk-margin uk-width-1-1">
+                    <p>
+                        These enable things like video, contact forms,
+                        search facility and accessibility toolbar.
+                        Our third party video player will add cookies
+                        to your device that enables it to play the
+                        video and collect information like how many
+                        plays the video has had.
+                    </p>
+                </div>
+                <div class="uk-width-1-4">
+                    <label class="switch">
+                        <input type="checkbox" data-triad-gdpr-cookie="triad_gdpr_consent_analytics">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="uk-width-3-4">
+                    <h3 class="uk-margin-remove-vertical">Analytics cookies</h3>
+                </div>
+                <div class="uk-margin uk-width-1-1">
+                    <p>
+                        These help us make improvements by measuring
+                        how you use the site, and are collected in
+                        a way that means you cannot be identified.
+                    </p>
+                </div>
+            </div>
+            <div class="uk-flex uk-flex-right uk-width-1-1">
+                <button type="button" class="uk-button" onclick="acceptConsent();">Save Preferences</button>
+            </div>
+        </div>
+    </div>
+</div>

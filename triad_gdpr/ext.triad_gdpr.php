@@ -6,70 +6,64 @@ if (!defined('BASEPATH')) {
 class Triad_gdpr_ext
 {
     public $settings = [];
-    public $author;
-    public $author_url;
-    public $name;
-    public $description;
-    public $version;
-    public $namespace;
-    public $settings_exist;
+    public string $version;
+    public string $cookiePrefix;
+    public array $necessaryCookies = [];
+    public $name = '';
+    public $author = '';
+    public $author_url = '';
+    public $description = '';
+    public $namespace = '';
+    public $settings_exist = 'y';
 
     public function __construct($settings = '')
     {
         $this->loadSetup();
         $this->settings = $settings;
+
+        $this->cookiePrefix = ee()->config->item('cookie_prefix') ?: 'exp';
+
+        $this->necessaryCookies = [
+            'PHPSESSID',
+            $this->cookiePrefix . '_anon',
+            $this->cookiePrefix . '_cp_last_site_id',
+            $this->cookiePrefix . '_csrf_token',
+            $this->cookiePrefix . '_flash',
+            $this->cookiePrefix . '_last_activity',
+            $this->cookiePrefix . '_last_visit',
+            $this->cookiePrefix . '_remember',
+            $this->cookiePrefix . '_sessionid',
+            $this->cookiePrefix . '_tracker',
+            $this->cookiePrefix . '_visitor_consents',
+            $this->cookiePrefix . '_viewtype',
+            'triad_gdpr_consent_necessary',
+        ];
     }
 
     public function activate_extension()
     {
+        // Get all sites if MSM is enabled
+        $sites = [];
+        if (ee()->config->item('multiple_sites_enabled') === 'y') {
+            ee()->db->select('site_id, site_label');
+            $query = ee()->db->get('sites');
+            foreach ($query->result_array() as $row) {
+                $sites[$row['site_id']] = ['gtm_code' => ''];
+            }
+        } else {
+            $sites[1] = ['gtm_code' => '']; // Default site
+        }
+
         ee()->db->insert('extensions', [
             'class' => __CLASS__,
             'method' => 'cookieConsent',
             'hook' => 'set_cookie_end',
             'settings' => serialize([
-                'gtm_gtag_id' => '',
-                'consent_message' => 'Do you consent to this website placing cookies on your computer?',
-                'revoke_message' => 'This website is now using cookies placed on your computer, click here to remove them.',
-                'javascript' => '<!-- place any javascript snippets here, they will be inserted once consent has been acquired. -->',
-                'consent_html' => '',
-                'revoke_html' => '',
-                'essential_cookies' => 'n',
-                'style' => '
-                    body {
-                        padding-bottom: 90px;
-                        position: relative;
-                    }
-                    .triad_gdpr {
-                        background: black;
-                        border: 1px solid white;
-                        font-size: 16px;
-                        padding: 30px;
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: middle;
-                        width: calc(100% - 62px);
-                        z-index: 10000;
-                    }
-                    .triad_gdpr button {
-                        background: white;
-                        border: none;
-                        color: black;
-                        padding: 8px 12px;
-                        cursor: pointer;
-                    }
-                    .triad_gdpr p {
-                        color: white;
-                        margin: 0;
-                    }
-                    #triad_gdpr_consent {
-                        bottom: 0;
-                        position: fixed;
-                    }
-                    #triad_gdpr_revoke {
-                        position: absolute;
-                        bottom: 0;
-                    }
-                ',
+                'consent_html' => file_get_contents(__DIR__ . '/defaults/consent.html'),
+                'manage_html' => file_get_contents(__DIR__ . '/defaults/manage.html'),
+                'necessary_cookies' => 'n',
+                'style' => file_get_contents(__DIR__ . '/defaults/styles.css'),
+                'sites' => $sites
             ]),
             'priority' => 1,
             'version' => $this->version,
@@ -79,50 +73,29 @@ class Triad_gdpr_ext
 
     public function cookieConsent($data)
     {
-        $cookiePrefix  = ee()->config->item('cookie_prefix');
-
-        if (empty($cookiePrefix)) {
-            $cookiePrefix = 'exp';
+        if(!array_key_exists('deletedCookies', $_REQUEST)) {
+            $_REQUEST['deletedCookies'] = false;
         }
 
-        $essentialCookies = [
-            'PHPSESSID',
-            'triad_gdpr_consent',
-            $cookiePrefix . '_anon',
-            $cookiePrefix . '_cp_last_site_id',
-            $cookiePrefix . '_csrf_token',
-            $cookiePrefix . '_flash',
-            $cookiePrefix . '_last_activity',
-            $cookiePrefix . '_last_visit',
-            $cookiePrefix . '_remember',
-            $cookiePrefix . '_sessionid',
-            $cookiePrefix . '_tracker',
-            $cookiePrefix . '_visitor_consents',
-            'triad_gdpr_consent'
-        ];
-
         // consent isn't granted
-        if (!isset($_COOKIE['triad_gdpr_consent']) || $_COOKIE['triad_gdpr_consent'] != 'yes') {
+        if (($_COOKIE['triad_gdpr_consent_necessary'] ?? 'no') != 'yes') {
             // this isn't a control panel request
             if (REQ != 'CP') {
-                // loop through current cookies and remove
-                foreach ($_COOKIE as $key => $value) {
-                    // unless 'essential' option is ticked
-                    if ($this->settings['essential_cookies'] == 'y' && in_array($key, $essentialCookies)) {
-                        continue;
+                if(!$_REQUEST['deletedCookies']) {
+                    foreach($this->necessaryCookies as $_name) {
+                        setcookie($_name, '', time() - 3600, '/',  $_SERVER['SERVER_NAME']);
+                        $_REQUEST['deletedCookies'] = true;
                     }
-                    setcookie($key, $value, time() - 3600, '/');
                 }
 
-                // void the current cookie attempt unless 'essential' option is ticked
-                if ($this->settings['essential_cookies'] == 'n') {
+                if(in_array($this->cookiePrefix . '_' . $data['name'], $this->necessaryCookies) || in_array($data['name'], $this->necessaryCookies)) {
                     $data['value'] = '';
                     $data['expire'] = 1;
                 }
 
                 return $data;
             } else {
-                setcookie('triad_gdpr_consent', 'yes', 0, '/');
+                setcookie('triad_gdpr_consent_necessary', 'yes', time() + (365*24*60*60), '/', $_SERVER['SERVER_NAME']);
             }
         }
 
@@ -156,16 +129,33 @@ class Triad_gdpr_ext
 
     public function settings()
     {
-        $out = [
-            'gtm_gtag_id' => ['i', '', ''],
-            'consent_message' => ['t', ['rows' => '20'], ''],
-            'revoke_message' => ['t', ['rows' => '20'], ''],
-            'javascript' => ['t', ['rows' => '20'], ''],
+        ee()->lang->loadfile('triad_gdpr');
+        
+        $settings = [
             'style' => ['t', ['rows' => '20'], ''],
+            'javascript' => ['t', ['rows' => '20'], ''],
             'consent_html' => ['t', ['rows' => '20'], ''],
-            'revoke_html' => ['t', ['rows' => '20'], ''],
-            'essential_cookies' => ['r', ['y' => "Yes", 'n' => "No"], 'n']
+            'manage_html' => ['t', ['rows' => '20'], ''],
+            'necessary_cookies' => ['r', ['y' => "Yes", 'n' => "No"], 'n']
         ];
-        return $out;
+
+        // Add GTM fields for each site if MSM is enabled
+        if (ee()->config->item('multiple_sites_enabled') === 'y') {
+            ee()->db->select('site_id, site_label, site_name');
+            $query = ee()->db->get('sites');
+            foreach ($query->result_array() as $row) {
+                $settings['gtm_gtag_id_' . $row['site_name']] = [
+                    'i',
+                    '',
+                    '',
+                    sprintf(lang('gtm_gtag_id_format'), ucfirst($row['site_name']))
+                ];
+            }
+        } else {
+            // Single site mode - just one GTM field
+            $settings['gtm_gtag_id'] = ['i', '', '', lang('gtm_gtag_id')];
+        }
+
+        return $settings;
     }
 }

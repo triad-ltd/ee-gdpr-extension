@@ -5,60 +5,105 @@ if (!defined('BASEPATH')) {
 
 class Triad_gdpr
 {
+    public $settings;
+
+    private Triad_gdpr_ext $ext;
+
     public function __construct($settings = '')
     {
-        $this->settings = $settings;
-        $this->loadSettings();
-    }
-
-    public function consent()
-    {
-        if (isset($_COOKIE['triad_gdpr_consent']) && $_COOKIE['triad_gdpr_consent'] == 'yes') {
-            return 'yes';
-        }
-        return 'no';
-    }
-
-    public function consent_essential()
-    {
-        if ($this->settings['essential_cookies'] == 'y' || $this->consent() == 'yes') {
-            return 'yes';
-        }
-
-        return 'no';
-    }
-
-    private function loadSettings()
-    {
-        $ext = new Triad_gdpr_ext();
-        $ext->loadSettings();
-        $this->settings = $ext->settings;
+        $this->ext = new Triad_gdpr_ext();
+        $this->ext->loadSettings();
+        $this->settings = $this->ext->settings;
     }
 
     public function notification_dismissed()
     {
-        if (isset($_COOKIE['triad_gdpr_dismiss']) && $_COOKIE['triad_gdpr_dismiss'] == 'yes')  {
-            return 'yes';
-        }
+        return $this->checkCookie('triad_gdpr_dismiss');
+    }
 
-        return 'no';
+    public function necessary_cookies_allowed(): bool
+    {
+        return $this->settings['necessary_cookies'] == 'y' || $this->checkCookie('triad_gdpr_consent_necessary');
+    }
+
+    public function analytics_cookies_allowed(): bool
+    {
+        return $this->checkCookie('triad_gdpr_consent_analytics');
+    }
+
+    public function performance_cookies_allowed(): bool
+    {
+        return $this->checkCookie('triad_gdpr_consent_performance');
+    }
+
+    private function checkCookie(string $name): bool
+    {
+        return isset($_COOKIE[$name]) && $_COOKIE[$name] == 'yes';
     }
 
     public function script()
-    {
-        $this->settings['revoke_html'] = str_replace("\n", '', $this->settings['revoke_html']);
-        $this->settings['revoke_html'] = str_replace("'", "\'", $this->settings['revoke_html']);
+    {   
+        $this->ext->loadSettings();  // Make sure settings are loaded
+        $this->settings = array_merge($this->ext->settings, $this->settings);
 
+        // Clean and sanitize HTML content
         $this->settings['consent_html'] = str_replace("\n", '', $this->settings['consent_html']);
-        $this->settings['consent_html'] = str_replace("'", "\'", $this->settings['consent_html']);
+        $this->settings['manage_html'] = str_replace("\n", '', $this->settings['manage_html']);
 
-        $this->settings['gtm_gtag_id'] = str_replace("'", "\'", $this->settings['gtm_gtag_id']);       
+        // Get current site's shortname from the sites table
+        $current_site_id = ee()->config->item('site_id');
+        $current_site_name = 'default';
+        
+        if (ee()->config->item('multiple_sites_enabled') === 'y') {
+            ee()->db->select('site_name');
+            ee()->db->where('site_id', $current_site_id);
+            $query = ee()->db->get('sites');
+            if ($query->num_rows() > 0) {
+                $current_site_name = $query->row('site_name');
+            }
+        }
+
+        $gtm_key = ee()->config->item('multiple_sites_enabled') === 'y'
+            ? 'gtm_gtag_id_' . $current_site_name
+            : 'gtm_gtag_id';
+
+        // Get the value from the settings array
+        if (isset($this->settings[$gtm_key])) {
+            $this->settings[$gtm_key] = str_replace("'", "\'", $this->settings[$gtm_key]);
+        }
+
+        $this->settings['necessaryCookies'] = $this->ext->necessaryCookies;
+        $this->settings['gtm_key'] = $this->settings[$gtm_key];
+
         return ee('View')->make('triad_gdpr:frontend')->render($this->settings);
     }
 
     public function noscript()
     {   
-        $this->settings['gtm_gtag_id'] = str_replace("'", "\'", $this->settings['gtm_gtag_id']);       
+        // Get current site's shortname from the sites table
+        $current_site_id = ee()->config->item('site_id');
+        $current_site_name = 'default';
+        
+        if (ee()->config->item('multiple_sites_enabled') === 'y') {
+            ee()->db->select('site_name');
+            ee()->db->where('site_id', $current_site_id);
+            $query = ee()->db->get('sites');
+            if ($query->num_rows() > 0) {
+                $current_site_name = $query->row('site_name');
+            }
+        }
+
+        $gtm_key = ee()->config->item('multiple_sites_enabled') === 'y'
+            ? 'gtm_gtag_id_' . $current_site_name
+            : 'gtm_gtag_id';
+
+        // Get the value from the settings array
+        if (isset($this->settings[$gtm_key])) {
+            $this->settings[$gtm_key] = str_replace("'", "\'", $this->settings[$gtm_key]);
+        }
+
+        $this->settings['gtm_key'] = $this->settings[$gtm_key];
+
         return ee('View')->make('triad_gdpr:body-frontend')->render($this->settings);
     }
 }

@@ -23,43 +23,6 @@ Place the following tag inside the &lt;head&gt; of your site template:
 `{exp:triad_gdpr:script}`
 
 
-### Server-side implementation
-Without consent, any forms using POST will fail as CSRF cannot function. You should also prevent third-party content such as video embeds from loading as they often place cookies immediately without requesting consent.
-The following conditional is available in order that you can show/hide content based on the consent option of the visitor:
-```
-{if "{exp:triad_gdpr:consent}" == "yes"}
-WE HAVE CONSENT
-{if:else}
-WE DON'T HAVE CONSENT
-{/if}
-```
-
-A setting has been included to allow 'essential' (none of them truly are) [ExpressionEngine cookies](https://docs.expressionengine.com/latest/general/cookies.html#cookies). With this enabled POST forms will function. A further conditional is available to show/hide content based on this control panel setting.
-```
-{if "{exp:triad_gdpr:consent_essential}" == "yes"}
-ESSENTIAL TOGGLE IS ON
-{if:else}
-ESSENTIAL TOGGLE IS OFF
-{/if}
-```
-
-A further use case is that you may have decided to place cookies without consent, and your end user may wish to dismiss the notification which is displayed. Include a button in your notification with the id `triad_gdpr_dismiss_btn` to trigger this feature. This conditional allows you to show/hide content based on the dismissal status.
-```
-{if "{exp:triad_gdpr:notification_dismissed}" == "yes"}
-ESSENTIAL TOGGLE IS ON
-{if:else}
-ESSENTIAL TOGGLE IS OFF
-{/if}
-```
-
-### Client-side implementation
-Javascript based, very useful for example when HTML is cached and static, but you still want to react to the consent status.
-
-Elements with the class `gdpr-consent-required` will be removed from the DOM if consent **is not** present.
-
-Elements with the class `gdpr-consent-message` will be removed from the DOM if consent **is** present.
-
-A global javascript variable `gdpr_consent` is also available. Its value will be either `true` or `false`.
 
 ## Consent Mode Version When GTM tag ID provided
 
@@ -87,6 +50,9 @@ Banner will automatically check for whether user has accepted / dismissed / revo
 
 
 ## Changelog
+0.4.1 - 2024-10-29
+ - MSM support added with unique GTM tags for each.
+
 0.4.0 - 2024-10-29
  - Update syntax to suppress deprecation errors
 
@@ -104,7 +70,7 @@ Banner will automatically check for whether user has accepted / dismissed / revo
 
 0.2.4 - 2021-11-11
  - Corrected settings load path
-
+ 
 0.2.3 - 2021-11-10
  - Swap use of remove() and arrow functions in javascript to IE compatible versions
 
