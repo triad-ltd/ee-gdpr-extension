@@ -339,12 +339,12 @@
     // hide/show content based on cookie status
     window.addEventListener('DOMContentLoaded', function(event) {
         <?php if (!empty($revoke_html)): ?>
-        window.document.body.insertAdjacentHTML('beforeend', '<?=$revoke_html?>');
+        window.document.body.insertAdjacentHTML('beforeend', '<?=str_replace("'","\'",$revoke_html)?>');
         <?php else: ?>
         window.document.body.insertAdjacentHTML('beforeend', '<div class="triad_gdpr gdpr-consent-required" id="triad_gdpr_revoke"><p><button id="triad_gdpr_revoke_btn">Remove Cookies</button><?=$revoke_message?></p></div>');
         <?php endif;?>
         <?php if (!empty($consent_html)): ?>
-        window.document.body.insertAdjacentHTML('beforeend', '<?=$consent_html?>');
+        window.document.body.insertAdjacentHTML('beforeend', '<?=str_replace("'","\'",$consent_html)?>');
         <?php else: ?>
         window.document.body.insertAdjacentHTML('beforeend', '<div class="triad_gdpr gdpr-consent-message" id="triad_gdpr_consent"><p><button id="triad_gdpr_consent_btn">Allow Cookies</button><?=$consent_message?></p></div>');
         <?php endif;?>
